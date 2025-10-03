@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(supabase:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(tar:*)",
+      "Bash(./supabase.exe --version)",
+      "Bash(./supabase.exe auth login)",
+      "Bash(./supabase.exe login)",
+      "Bash(node:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm:*)",
+      "Bash(npx yarn install:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
