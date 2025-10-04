@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Calendar, CalendarDays, Users, DollarSign, Clock, Settings, Home, FileText, BarChart3 } from "lucide-react"
-import { EmployeesPage } from "@/components/EmployeesPage"
-import { PaymentsPage } from "@/components/PaymentsPage"
+import EmployeesPage from "@/components/EmployeesPage"
+import PaymentsPage from "@/components/PaymentsPage"
 
 // Tipos e constantes
 type Employee = {
@@ -354,10 +354,11 @@ export default function ExtendedScheduleManager() {
 
         {/* Conteúdo principal */}
         <div className="flex-1 overflow-auto">
-          <EmployeesPage 
+          <EmployeesPage
+            EMPLOYEE_TYPES={EMPLOYEE_TYPES}
+            CITIES={CITIES}
             currentCity={currentCity}
             selectedDate={selectedDate}
-            onCityChange={setCurrentCity}
             onDateChange={setSelectedDate}
           />
         </div>
@@ -427,11 +428,18 @@ export default function ExtendedScheduleManager() {
 
         {/* Conteúdo principal */}
         <div className="flex-1 overflow-auto">
-          <PaymentsPage 
+          <PaymentsPage
+            employees={employees}
+            schedule={schedule}
+            totalHours={totalHours}
+            EMPLOYEE_TYPES={EMPLOYEE_TYPES}
+            getTotalHours={(employeeId: string) => {
+              const empSchedule = schedule[employeeId] || []
+              return empSchedule.filter(Boolean).length * 0.5
+            }}
             currentCity={currentCity}
             selectedDate={selectedDate}
-            onCityChange={setCurrentCity}
-            onDateChange={setSelectedDate}
+            CITIES={CITIES}
           />
         </div>
       </div>

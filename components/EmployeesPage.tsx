@@ -1418,5 +1418,3 @@ export default function EmployeesPage({
     </div>
   )
 }
-
-export { EmployeesPage }
