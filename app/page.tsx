@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Calendar, CalendarDays, Users, DollarSign, Clock, Settings, Home, FileText, BarChart3 } from "lucide-react"
+import { Calendar, CalendarDays, Users, DollarSign, Clock, Settings, Home, FileText, BarChart3, Cloud, CloudOff, RefreshCw } from "lucide-react"
 import EmployeesPage from "@/components/EmployeesPage"
 import PaymentsPage from "@/components/PaymentsPage"
+import { syncScheduleToSupabase, loadScheduleFromSupabase, testSupabaseConnection } from "@/lib/supabase-sync"
 
 // Tipos e constantes
 type Employee = {
@@ -110,6 +111,9 @@ export default function ExtendedScheduleManager() {
   const [editingEmployee, setEditingEmployee] = useState<string | null>(null)
   const [editName, setEditName] = useState("")
   const [isInitialized, setIsInitialized] = useState(false)
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [syncMessage, setSyncMessage] = useState("")
+  const [isSupabaseConnected, setIsSupabaseConnected] = useState(false)
 
   // Refs para controle
   const previousCityRef = useRef<keyof typeof CITIES>("lisboa")
@@ -274,6 +278,208 @@ export default function ExtendedScheduleManager() {
   }
 
   const { totalHours, totalCost } = calculateTotals()
+
+  // Funções de exportação
+  const exportToPNG = async () => {
+    try {
+      const html2canvas = (await import('html2canvas')).default
+      const element = document.querySelector('.schedule-table') as HTMLElement
+      if (!element) {
+        alert('Tabela de horários não encontrada')
+        return
+      }
+      
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true
+      })
+      
+      const link = document.createElement('a')
+      link.download = `escala-${currentCity}-${selectedDate.toISOString().split('T')[0]}.png`
+      link.href = canvas.toDataURL('image/png')
+      link.click()
+    } catch (error) {
+      console.error('Erro ao exportar PNG:', error)
+      alert('Erro ao exportar para PNG')
+    }
+  }
+
+  const exportToJPEG = async () => {
+    try {
+      const html2canvas = (await import('html2canvas')).default
+      const element = document.querySelector('.schedule-table') as HTMLElement
+      if (!element) {
+        alert('Tabela de horários não encontrada')
+        return
+      }
+      
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true
+      })
+      
+      const link = document.createElement('a')
+      link.download = `escala-${currentCity}-${selectedDate.toISOString().split('T')[0]}.jpg`
+      link.href = canvas.toDataURL('image/jpeg', 0.9)
+      link.click()
+    } catch (error) {
+      console.error('Erro ao exportar JPEG:', error)
+      alert('Erro ao exportar para JPEG')
+    }
+  }
+
+  const exportToExcel = async () => {
+    try {
+      const XLSX = (await import('xlsx')).default
+      
+      // Preparar dados para Excel
+      const data = []
+      
+      // Cabeçalho com horários
+      const timeHeaders = ['Colaborador', 'Tipo']
+      for (let i = 0; i < totalHalfHours; i++) {
+        const hour = Math.floor((i + 6) / 2) % 24
+        const minute = (i % 2) * 30
+        const timeStr = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`
+        timeHeaders.push(timeStr)
+      }
+      data.push(timeHeaders)
+      
+      // Dados dos colaboradores
+      employees.forEach((emp) => {
+        const empSchedule = schedule[emp.id] || new Array(totalHalfHours).fill(false)
+        const empType = EMPLOYEE_TYPES[emp.type as keyof typeof EMPLOYEE_TYPES]
+        const row = [emp.name, empType?.name || emp.type]
+        
+        empSchedule.forEach((isSelected) => {
+          row.push(isSelected ? 'X' : '')
+        })
+        
+        data.push(row)
+      })
+      
+      // Adicionar linha de resumo
+      data.push([])
+      data.push(['Resumo'])
+      data.push(['Total de Horas:', totalHours.toFixed(1)])
+      data.push(['Total de Colaboradores:', employees.length])
+      data.push(['Custo Estimado:', `€${totalCost.toFixed(2)}`])
+      
+      const ws = XLSX.utils.aoa_to_sheet(data)
+      const wb = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(wb, ws, 'Escala')
+      
+      XLSX.writeFile(wb, `escala-${currentCity}-${selectedDate.toISOString().split('T')[0]}.xlsx`)
+    } catch (error) {
+      console.error('Erro ao exportar Excel:', error)
+      alert('Erro ao exportar para Excel')
+    }
+  }
+
+  // Funções de reset
+  const resetSchedule = () => {
+    if (confirm('Tem certeza que deseja limpar todos os horários? Esta ação não pode ser desfeita.')) {
+      const newSchedule: Record<string, boolean[]> = {}
+      employees.forEach((emp) => {
+        newSchedule[emp.id] = new Array(totalHalfHours).fill(false)
+      })
+      setSchedule(newSchedule)
+      
+      // Salvar imediatamente
+      setTimeout(() => {
+        saveCityData(currentCity, selectedDate, employees, newSchedule, totalHalfHours)
+      }, 100)
+    }
+  }
+
+  const resetEmployees = () => {
+    if (confirm('Tem certeza que deseja remover todos os colaboradores da escala? Esta ação não pode ser desfeita.')) {
+      setEmployees([])
+      setSchedule({})
+      
+      // Salvar imediatamente
+      setTimeout(() => {
+        saveCityData(currentCity, selectedDate, [], {}, totalHalfHours)
+      }, 100)
+    }
+  }
+
+  // Funções de sincronização Supabase
+  const checkSupabaseConnection = async () => {
+    const result = await testSupabaseConnection()
+    setIsSupabaseConnected(result.success)
+    return result
+  }
+
+  const syncToSupabase = async () => {
+    setIsSyncing(true)
+    setSyncMessage("")
+    
+    try {
+      const result = await syncScheduleToSupabase(
+        currentCity,
+        selectedDate,
+        employees,
+        schedule,
+        totalHalfHours
+      )
+      
+      setSyncMessage(result.message)
+      
+      if (result.success) {
+        setTimeout(() => setSyncMessage(""), 3000)
+      }
+    } catch (error) {
+      setSyncMessage("Erro ao sincronizar com Supabase")
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  const loadFromSupabase = async () => {
+    setIsSyncing(true)
+    setSyncMessage("")
+    
+    try {
+      const result = await loadScheduleFromSupabase(currentCity, selectedDate)
+      
+      if (result.success && result.data) {
+        setEmployees(result.data.employees || [])
+        setSchedule(result.data.schedule || {})
+        setTotalHalfHours(result.data.total_half_hours || DEFAULT_HALF_HOURS)
+        
+        // Salvar também no localStorage
+        setTimeout(() => {
+          saveCityData(
+            currentCity,
+            selectedDate,
+            result.data!.employees || [],
+            result.data!.schedule || {},
+            result.data!.total_half_hours || DEFAULT_HALF_HOURS
+          )
+        }, 100)
+      }
+      
+      setSyncMessage(result.message)
+      
+      if (result.success) {
+        setTimeout(() => setSyncMessage(""), 3000)
+      }
+    } catch (error) {
+      setSyncMessage("Erro ao carregar do Supabase")
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  // Verificar conexão Supabase na inicialização
+  useEffect(() => {
+    checkSupabaseConnection()
+  }, [])
 
   // Renderizar horários
   const renderTimeSlots = () => {
@@ -564,14 +770,22 @@ export default function ExtendedScheduleManager() {
               </Select>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Label>Data:</Label>
+            <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <Calendar className="w-5 h-5 text-blue-600" />
+              <Label className="font-medium text-blue-900">Data:</Label>
               <Input
                 type="date"
                 value={selectedDate.toISOString().split("T")[0]}
                 onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                className="w-48"
+                className="w-56 h-10 text-base font-medium border-blue-300 focus:border-blue-500 focus:ring-blue-500"
               />
+              <span className="text-sm text-blue-700 font-medium">
+                {selectedDate.toLocaleDateString("pt-PT", { 
+                  weekday: 'long', 
+                  day: 'numeric', 
+                  month: 'long' 
+                })}
+              </span>
             </div>
           </div>
 
@@ -631,19 +845,62 @@ export default function ExtendedScheduleManager() {
               </DialogContent>
             </Dialog>
 
-            <Button variant="outline">PNG</Button>
-            <Button variant="outline">JPEG</Button>
-            <Button variant="outline">Excel</Button>
-            <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+            {/* Botões de Sincronização Supabase */}
+            <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-lg border border-blue-200">
+              {isSupabaseConnected ? (
+                <Cloud className="w-4 h-4 text-blue-600" />
+              ) : (
+                <CloudOff className="w-4 h-4 text-red-500" />
+              )}
+              <span className="text-xs text-gray-600">
+                {isSupabaseConnected ? "Conectado" : "Desconectado"}
+              </span>
+            </div>
+            
+            <Button 
+              variant="outline" 
+              onClick={syncToSupabase}
+              disabled={isSyncing || !isSupabaseConnected}
+              className="text-blue-600 border-blue-200 hover:bg-blue-50"
+            >
+              {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Cloud className="w-4 h-4 mr-2" />}
+              Sincronizar
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              onClick={loadFromSupabase}
+              disabled={isSyncing || !isSupabaseConnected}
+              className="text-green-600 border-green-200 hover:bg-green-50"
+            >
+              {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+              Carregar
+            </Button>
+
+            <Button variant="outline" onClick={exportToPNG}>PNG</Button>
+            <Button variant="outline" onClick={exportToJPEG}>JPEG</Button>
+            <Button variant="outline" onClick={exportToExcel}>Excel</Button>
+            <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={resetSchedule}>
               Reset (24h)
             </Button>
-            <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50">
+            <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={resetEmployees}>
               Reset Colaboradores
             </Button>
             <div className="ml-auto text-sm text-gray-600">
               24h ({totalHalfHours} blocos)
             </div>
           </div>
+
+          {/* Mensagem de sincronização */}
+          {syncMessage && (
+            <div className={`mb-4 p-3 rounded-lg ${
+              syncMessage.includes('sucesso') || syncMessage.includes('carregados') || syncMessage.includes('sincronizados')
+                ? 'bg-green-50 text-green-700 border border-green-200'
+                : 'bg-red-50 text-red-700 border border-red-200'
+            }`}>
+              <p className="text-sm">{syncMessage}</p>
+            </div>
+          )}
 
           {/* Categorias */}
           <div className="mb-6">
@@ -670,9 +927,9 @@ export default function ExtendedScheduleManager() {
           </div>
 
           {/* Tabela de horários */}
-          <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
-            <div className="overflow-x-auto">
-              <div className="grid grid-cols-[200px_repeat(48,1fr)] min-w-max">
+          <div className="bg-white rounded-lg border shadow-sm overflow-hidden schedule-table">
+            <div className="overflow-x-auto max-w-full">
+              <div className="grid grid-cols-[minmax(180px,200px)_repeat(48,minmax(24px,1fr))] min-w-max" style={{ minWidth: '1400px' }}>
                 {/* Cabeçalho */}
                 <div className="p-3 bg-gray-100 border-r border-gray-200 font-semibold">
                   Horário<br />

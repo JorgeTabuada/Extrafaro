@@ -12,10 +12,11 @@ import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
-import { Users, Plus, Edit3, Trash2, User, AlertCircle, Search, Save, X, MapPin, Calendar, Euro } from "lucide-react"
+import { Users, Plus, Edit3, Trash2, User, AlertCircle, Search, Save, X, MapPin, Calendar, Euro, Cloud, CloudOff, RefreshCw } from "lucide-react"
 import { format } from "date-fns"
 import { pt } from "date-fns/locale"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { syncEmployeesToSupabase, loadEmployeesFromSupabase, testSupabaseConnection } from "@/lib/supabase-sync"
 
 const EMPLOYEE_STATES = {
   active: {
@@ -110,6 +111,9 @@ export default function EmployeesPage({
   const [filterType, setFilterType] = useState<string>("all")
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [selectedDayForHours, setSelectedDayForHours] = useState<string>("monday")
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [syncMessage, setSyncMessage] = useState("")
+  const [isSupabaseConnected, setIsSupabaseConnected] = useState(false)
 
   useEffect(() => {
     if (propSelectedDate) {
@@ -346,6 +350,62 @@ export default function EmployeesPage({
     return CITIES[currentCity].rates[employee.type]
   }
 
+  // Funções de sincronização Supabase
+  const checkSupabaseConnection = async () => {
+    const result = await testSupabaseConnection()
+    setIsSupabaseConnected(result.success)
+    return result
+  }
+
+  const syncToSupabase = async () => {
+    setIsSyncing(true)
+    setSyncMessage("")
+    
+    try {
+      const result = await syncEmployeesToSupabase(employees)
+      setSyncMessage(result.message)
+      
+      if (result.success) {
+        setTimeout(() => setSyncMessage(""), 3000)
+      }
+    } catch (error) {
+      setSyncMessage("Erro ao sincronizar colaboradores")
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  const loadFromSupabase = async () => {
+    setIsSyncing(true)
+    setSyncMessage("")
+    
+    try {
+      const result = await loadEmployeesFromSupabase(currentCity)
+      
+      if (result.success && result.data) {
+        setEmployees(result.data)
+        
+        // Salvar também no localStorage
+        localStorage.setItem(`city-employees-${currentCity}`, JSON.stringify(result.data))
+      }
+      
+      setSyncMessage(result.message)
+      
+      if (result.success) {
+        setTimeout(() => setSyncMessage(""), 3000)
+      }
+    } catch (error) {
+      setSyncMessage("Erro ao carregar colaboradores do Supabase")
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  // Verificar conexão Supabase na inicialização
+  useEffect(() => {
+    checkSupabaseConnection()
+  }, [])
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -358,14 +418,50 @@ export default function EmployeesPage({
             </div>
           </div>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Adicionar Colaborador
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center gap-3">
+          {/* Status de conexão Supabase */}
+          <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-lg border border-blue-200">
+            {isSupabaseConnected ? (
+              <Cloud className="w-4 h-4 text-blue-600" />
+            ) : (
+              <CloudOff className="w-4 h-4 text-red-500" />
+            )}
+            <span className="text-xs text-gray-600">
+              {isSupabaseConnected ? "Conectado" : "Desconectado"}
+            </span>
+          </div>
+          
+          {/* Botões de sincronização */}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={syncToSupabase}
+            disabled={isSyncing || !isSupabaseConnected}
+            className="text-blue-600 border-blue-200 hover:bg-blue-50"
+          >
+            {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <Cloud className="w-4 h-4 mr-2" />}
+            Sincronizar
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={loadFromSupabase}
+            disabled={isSyncing || !isSupabaseConnected}
+            className="text-green-600 border-green-200 hover:bg-green-50"
+          >
+            {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : <RefreshCw className="w-4 h-4 mr-2" />}
+            Carregar
+          </Button>
+
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Adicionar Colaborador
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Adicionar Novo Colaborador - {CITIES[currentCity].name}</DialogTitle>
             </DialogHeader>
@@ -756,8 +852,20 @@ export default function EmployeesPage({
               </div>
             </div>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
+
+      {/* Mensagem de sincronização */}
+      {syncMessage && (
+        <div className={`p-3 rounded-lg ${
+          syncMessage.includes('sucesso') || syncMessage.includes('carregados') || syncMessage.includes('sincronizados')
+            ? 'bg-green-50 text-green-700 border border-green-200'
+            : 'bg-red-50 text-red-700 border border-red-200'
+        }`}>
+          <p className="text-sm">{syncMessage}</p>
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-4 items-center p-4 bg-white rounded-lg border">
         <div className="flex items-center gap-2">

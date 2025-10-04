@@ -3,9 +3,11 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { Euro, TrendingUp, Users, Calculator, MapPin, Calendar } from "lucide-react"
+import { Euro, TrendingUp, Users, Calculator, MapPin, Calendar, Cloud, CloudOff, RefreshCw } from "lucide-react"
 import { format } from "date-fns"
 import { pt } from "date-fns/locale"
+import { Button } from "@/components/ui/button"
+import { testSupabaseConnection } from "@/lib/supabase-sync"
 
 interface Employee {
   id: string
@@ -47,6 +49,7 @@ export default function PaymentsPage({
   CITIES,
 }: PaymentsPageProps) {
   const [allCitiesData, setAllCitiesData] = useState<{ [key: string]: CityData }>({})
+  const [isSupabaseConnected, setIsSupabaseConnected] = useState(false)
 
   useEffect(() => {
     const loadAllCitiesData = () => {
@@ -66,6 +69,15 @@ export default function PaymentsPage({
 
     loadAllCitiesData()
   }, [selectedDate, CITIES])
+
+  // Verificar conexão Supabase na inicialização
+  useEffect(() => {
+    const checkConnection = async () => {
+      const result = await testSupabaseConnection()
+      setIsSupabaseConnected(result.success)
+    }
+    checkConnection()
+  }, [])
 
   const currentCityRates = CITIES[currentCity].rates
 
@@ -168,18 +180,32 @@ export default function PaymentsPage({
   return (
     <div className="space-y-6">
       <div className="mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Cálculo de Pagamentos</h2>
-          <p className="text-gray-600">Relatório detalhado de pagamentos por colaborador (incluindo meias horas)</p>
-          <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-            <div className="flex items-center gap-1">
-              <MapPin className="w-4 h-4" />
-              <span>{CITIES[currentCity].name}</span>
+        <div className="flex justify-between items-start">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900">Cálculo de Pagamentos</h2>
+            <p className="text-gray-600">Relatório detalhado de pagamentos por colaborador (incluindo meias horas)</p>
+            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+              <div className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                <span>{CITIES[currentCity].name}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Calendar className="w-4 h-4" />
+                <span>{format(selectedDate, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: pt })}</span>
+              </div>
             </div>
-            <div className="flex items-center gap-1">
-              <Calendar className="w-4 h-4" />
-              <span>{format(selectedDate, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: pt })}</span>
-            </div>
+          </div>
+          
+          {/* Status de conexão Supabase */}
+          <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 rounded-lg border border-blue-200">
+            {isSupabaseConnected ? (
+              <Cloud className="w-4 h-4 text-blue-600" />
+            ) : (
+              <CloudOff className="w-4 h-4 text-red-500" />
+            )}
+            <span className="text-xs text-gray-600">
+              {isSupabaseConnected ? "Conectado" : "Desconectado"}
+            </span>
           </div>
         </div>
       </div>

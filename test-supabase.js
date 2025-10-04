@@ -1,7 +1,7 @@
 const { createClient } = require('@supabase/supabase-js')
 
-const supabaseUrl = 'https://eijnesrqpzvjqxmqtzcz.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVpam5lc3JxcHp2anF4bXF0emN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1MzA1ODIsImV4cCI6MjA3NTEwNjU4Mn0.pUA87maQw5w8Qtt40npx-SqQ_Jj9naLtURwJggwUZrg'
+const supabaseUrl = 'https://srwbtxvcyvdbcfgrdxen.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNyd2J0eHZjeXZkYmNmZ3JkeGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk1NTI3NjQsImV4cCI6MjA3NTEyODc2NH0.1xOWUthSP_eBWAvOpQcXkFmFgOh0ZqqqngC1rebW2N8'
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
@@ -53,7 +53,7 @@ CREATE POLICY "Allow public access" ON employees
         `)
         console.log('---------------------------------------------------')
         console.log('\n🔗 Link direto para o SQL Editor:')
-        console.log(`https://supabase.com/dashboard/project/eijnesrqpzvjqxmqtzcz/sql/new`)
+        console.log(`https://supabase.com/dashboard/project/srwbtxvcyvdbcfgrdxen/sql/new`)
       } else {
         console.log('❌ Erro:', error.message)
       }
