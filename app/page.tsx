@@ -45,20 +45,53 @@ type CityData = {
   totalHalfHours: number
 }
 
-const CITIES = {
-  lisboa: "Lisboa",
-  porto: "Porto", 
-  faro: "Faro",
+const EMPLOYEE_TYPES = {
+  novice: { name: "Novato / Primeira vez", label: "Novato / Primeira vez", color: "bg-yellow-500", rate: 4.5 },
+  no_pickup: { name: "Não faz recolhas/entregas", label: "Não faz recolhas/entregas", color: "bg-orange-500", rate: 5.0 },
+  pickup: { name: "Faz recolhas", label: "Faz recolhas", color: "bg-green-500", rate: 5.5 },
+  pickup_delivery: { name: "Faz recolhas e entregas", label: "Faz recolhas e entregas", color: "bg-blue-500", rate: 6.0 },
+  terminal: { name: "Faz terminal", label: "Faz terminal", color: "bg-purple-500", rate: 6.5 },
+  team_leader: { name: "Team Leader", label: "Team Leader", color: "bg-black", rate: 7.0 },
+  second: { name: "Segundo", label: "Segundo", color: "bg-gray-600", rate: 5.5 },
 } as const
 
-const EMPLOYEE_TYPES = {
-  novice: { name: "Novato / Primeira vez", color: "bg-yellow-500", rate: 4.5 },
-  no_pickup: { name: "Não faz recolhas/entregas", color: "bg-orange-500", rate: 5.0 },
-  pickup: { name: "Faz recolhas", color: "bg-green-500", rate: 5.5 },
-  pickup_delivery: { name: "Faz recolhas e entregas", color: "bg-blue-500", rate: 6.0 },
-  terminal: { name: "Faz terminal", color: "bg-purple-500", rate: 6.5 },
-  team_leader: { name: "Team Leader", color: "bg-black", rate: 7.0 },
-  second: { name: "Segundo", color: "bg-gray-600", rate: 5.5 },
+const CITIES = {
+  lisboa: {
+    name: "Lisboa",
+    rates: {
+      novice: 4.5,
+      no_pickup: 5.0,
+      pickup: 5.5,
+      pickup_delivery: 6.0,
+      terminal: 6.5,
+      team_leader: 7.0,
+      second: 5.5,
+    }
+  },
+  porto: {
+    name: "Porto",
+    rates: {
+      novice: 4.5,
+      no_pickup: 5.0,
+      pickup: 5.5,
+      pickup_delivery: 6.0,
+      terminal: 6.5,
+      team_leader: 7.0,
+      second: 5.5,
+    }
+  },
+  faro: {
+    name: "Faro",
+    rates: {
+      novice: 4.5,
+      no_pickup: 5.0,
+      pickup: 5.5,
+      pickup_delivery: 6.0,
+      terminal: 6.5,
+      team_leader: 7.0,
+      second: 5.5,
+    }
+  },
 } as const
 
 const DEFAULT_HALF_HOURS = 48
@@ -346,7 +379,7 @@ export default function ExtendedScheduleManager() {
 
           <div className="absolute bottom-4 left-4 right-4">
             <div className="p-3 bg-gray-100 rounded-lg">
-              <div className="text-sm font-medium text-gray-700">{CITIES[currentCity]}</div>
+              <div className="text-sm font-medium text-gray-700">{CITIES[currentCity].name}</div>
               <div className="text-xs text-gray-500">Cidade atual</div>
             </div>
           </div>
@@ -420,7 +453,7 @@ export default function ExtendedScheduleManager() {
 
           <div className="absolute bottom-4 left-4 right-4">
             <div className="p-3 bg-gray-100 rounded-lg">
-              <div className="text-sm font-medium text-gray-700">{CITIES[currentCity]}</div>
+              <div className="text-sm font-medium text-gray-700">{CITIES[currentCity].name}</div>
               <div className="text-xs text-gray-500">Cidade atual</div>
             </div>
           </div>
