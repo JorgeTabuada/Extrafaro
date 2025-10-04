@@ -425,7 +425,9 @@ export default function ExtendedScheduleManager() {
         selectedDate,
         employees,
         schedule,
-        totalHalfHours
+        totalHalfHours,
+        CITIES,
+        EMPLOYEE_TYPES
       )
       
       setSyncMessage(result.message)
@@ -450,7 +452,7 @@ export default function ExtendedScheduleManager() {
       if (result.success && result.data) {
         setEmployees(result.data.employees || [])
         setSchedule(result.data.schedule || {})
-        setTotalHalfHours(result.data.total_half_hours || DEFAULT_HALF_HOURS)
+        setTotalHalfHours(DEFAULT_HALF_HOURS)
         
         // Salvar também no localStorage
         setTimeout(() => {
@@ -459,7 +461,7 @@ export default function ExtendedScheduleManager() {
             selectedDate,
             result.data!.employees || [],
             result.data!.schedule || {},
-            result.data!.total_half_hours || DEFAULT_HALF_HOURS
+            DEFAULT_HALF_HOURS
           )
         }, 100)
       }

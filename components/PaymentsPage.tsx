@@ -60,15 +60,52 @@ export default function PaymentsPage({
         const savedData = localStorage.getItem(`city-data-${cityDateKey}`)
 
         if (savedData) {
-          citiesData[cityKey] = JSON.parse(savedData)
+          try {
+            citiesData[cityKey] = JSON.parse(savedData)
+          } catch (error) {
+            console.error(`Erro ao carregar dados da cidade ${cityKey}:`, error)
+            // Dados padrão em caso de erro
+            citiesData[cityKey] = {
+              employees: [],
+              schedule: {},
+              totalHalfHours: 48,
+              date: format(selectedDate, "yyyy-MM-dd")
+            }
+          }
+        } else {
+          // Dados padrão se não houver dados salvos
+          citiesData[cityKey] = {
+            employees: [],
+            schedule: {},
+            totalHalfHours: 48,
+            date: format(selectedDate, "yyyy-MM-dd")
+          }
         }
       })
+
+      // Incluir dados da cidade atual se não estiver já incluída
+      if (currentCity && !citiesData[currentCity]) {
+        citiesData[currentCity] = {
+          employees: employees,
+          schedule: schedule,
+          totalHalfHours: 48,
+          date: format(selectedDate, "yyyy-MM-dd")
+        }
+      } else if (currentCity && citiesData[currentCity]) {
+        // Atualizar com dados atuais se a cidade atual tem dados mais recentes
+        citiesData[currentCity] = {
+          employees: employees,
+          schedule: schedule,
+          totalHalfHours: 48,
+          date: format(selectedDate, "yyyy-MM-dd")
+        }
+      }
 
       setAllCitiesData(citiesData)
     }
 
     loadAllCitiesData()
-  }, [selectedDate, CITIES])
+  }, [selectedDate, CITIES, currentCity, employees, schedule])
 
   // Verificar conexão Supabase na inicialização
   useEffect(() => {
@@ -83,12 +120,27 @@ export default function PaymentsPage({
 
   const calculatePayment = (employeeId: string, employeeType: string, cityKey: string) => {
     const cityData = allCitiesData[cityKey]
-    if (!cityData) return 0
+    if (!cityData || !cityData.schedule) {
+      console.log(`Sem dados para cidade ${cityKey}`)
+      return 0
+    }
 
     const employeeSchedule = cityData.schedule[employeeId] || []
+    if (!Array.isArray(employeeSchedule)) {
+      console.log(`Schedule inválido para colaborador ${employeeId} na cidade ${cityKey}`)
+      return 0
+    }
+
     const halfHoursWorked = employeeSchedule.filter(Boolean).length
     const hoursWorked = halfHoursWorked / 2 // Converte meias horas em horas
-    const rate = CITIES[cityKey].rates[employeeType]
+    
+    const cityRates = CITIES[cityKey]?.rates
+    if (!cityRates || !cityRates[employeeType]) {
+      console.log(`Taxa não encontrada para tipo ${employeeType} na cidade ${cityKey}`)
+      return 0
+    }
+    
+    const rate = cityRates[employeeType]
 
     // Calcular pagamento com horas completas e meias horas
     const fullHours = Math.floor(hoursWorked)
@@ -99,6 +151,7 @@ export default function PaymentsPage({
       payment += rate / 2 // Adiciona meia hora
     }
 
+    console.log(`Pagamento calculado: ${employeeId} (${employeeType}) em ${cityKey}: ${hoursWorked}h × €${rate} = €${payment}`)
     return payment
   }
 

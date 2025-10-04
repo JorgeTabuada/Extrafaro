@@ -3,10 +3,15 @@ import { supabase, isSupabaseConfigured } from './supabase'
 export interface ScheduleData {
   id?: string
   city: string
-  date: string
-  employees: any[]
-  schedule: Record<string, boolean[]>
-  total_half_hours: number
+  schedule_date: string
+  employee_id: string
+  employee_name: string
+  employee_type: string
+  employee_order: number
+  time_slots: boolean[]
+  total_hours: number
+  hourly_rate: number
+  total_cost: number
   created_at?: string
   updated_at?: string
 }
@@ -31,7 +36,9 @@ export const syncScheduleToSupabase = async (
   date: Date,
   employees: any[],
   schedule: Record<string, boolean[]>,
-  totalHalfHours: number
+  totalHalfHours: number,
+  CITIES: any,
+  EMPLOYEE_TYPES: any
 ): Promise<{ success: boolean; message: string }> => {
   if (!isSupabaseConfigured() || !supabase) {
     return { success: false, message: 'Supabase não configurado' }
@@ -39,28 +46,46 @@ export const syncScheduleToSupabase = async (
 
   try {
     const dateStr = date.toISOString().split('T')[0]
-    const scheduleId = `${city}-${dateStr}`
+    
+    // Criar registros individuais para cada colaborador
+    const scheduleRecords: ScheduleData[] = []
+    
+    employees.forEach((employee, index) => {
+      const employeeSchedule = schedule[employee.id] || []
+      const totalHours = employeeSchedule.filter(Boolean).length / 2
+      const hourlyRate = CITIES[city]?.rates?.[employee.type] || 0
+      const totalCost = totalHours * hourlyRate
 
-    const scheduleData: ScheduleData = {
-      id: scheduleId,
-      city,
-      date: dateStr,
-      employees,
-      schedule,
-      total_half_hours: totalHalfHours,
-      updated_at: new Date().toISOString()
+      scheduleRecords.push({
+        id: `${city}-${dateStr}-${employee.id}`,
+        city,
+        schedule_date: dateStr,
+        employee_id: employee.id,
+        employee_name: employee.name,
+        employee_type: employee.type,
+        employee_order: employee.order || index,
+        time_slots: employeeSchedule,
+        total_hours: totalHours,
+        hourly_rate: hourlyRate,
+        total_cost: totalCost,
+        updated_at: new Date().toISOString()
+      })
+    })
+
+    if (scheduleRecords.length === 0) {
+      return { success: true, message: 'Nenhuma escala para sincronizar' }
     }
 
     const { data, error } = await supabase
       .from('schedules')
-      .upsert(scheduleData, { onConflict: 'id' })
+      .upsert(scheduleRecords, { onConflict: 'id' })
 
     if (error) {
       console.error('Erro ao sincronizar escala:', error)
       return { success: false, message: `Erro: ${error.message}` }
     }
 
-    return { success: true, message: 'Escala sincronizada com sucesso!' }
+    return { success: true, message: `${scheduleRecords.length} escalas sincronizadas com sucesso!` }
   } catch (error) {
     console.error('Erro ao sincronizar escala:', error)
     return { success: false, message: 'Erro interno ao sincronizar' }
@@ -71,30 +96,44 @@ export const syncScheduleToSupabase = async (
 export const loadScheduleFromSupabase = async (
   city: string,
   date: Date
-): Promise<{ success: boolean; data?: ScheduleData; message: string }> => {
+): Promise<{ success: boolean; data?: { employees: any[], schedule: Record<string, boolean[]> }; message: string }> => {
   if (!isSupabaseConfigured() || !supabase) {
     return { success: false, message: 'Supabase não configurado' }
   }
 
   try {
     const dateStr = date.toISOString().split('T')[0]
-    const scheduleId = `${city}-${dateStr}`
 
     const { data, error } = await supabase
       .from('schedules')
       .select('*')
-      .eq('id', scheduleId)
-      .single()
+      .eq('city', city)
+      .eq('schedule_date', dateStr)
 
     if (error) {
-      if (error.code === 'PGRST116') {
-        return { success: false, message: 'Nenhuma escala encontrada para esta data' }
-      }
       console.error('Erro ao carregar escala:', error)
       return { success: false, message: `Erro: ${error.message}` }
     }
 
-    return { success: true, data, message: 'Escala carregada com sucesso!' }
+    if (!data || data.length === 0) {
+      return { success: false, message: 'Nenhuma escala encontrada para esta data' }
+    }
+
+    // Converter dados do Supabase para formato da aplicação
+    const employees: any[] = []
+    const schedule: Record<string, boolean[]> = {}
+
+    data.forEach((record: any) => {
+      employees.push({
+        id: record.employee_id,
+        name: record.employee_name,
+        type: record.employee_type,
+        order: record.employee_order
+      })
+      schedule[record.employee_id] = record.time_slots || []
+    })
+
+    return { success: true, data: { employees, schedule }, message: `${data.length} escalas carregadas com sucesso!` }
   } catch (error) {
     console.error('Erro ao carregar escala:', error)
     return { success: false, message: 'Erro interno ao carregar' }
