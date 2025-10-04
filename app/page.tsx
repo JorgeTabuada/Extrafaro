@@ -523,7 +523,7 @@ export default function ExtendedScheduleManager() {
               }`}
               onClick={() => toggleScheduleCell(emp.id, slotIndex)}
             >
-              <div className="w-full h-6 flex items-center justify-center text-xs">
+              <div className="w-full h-8 flex items-center justify-center text-sm font-medium">
                 {isSelected ? "✓" : ""}
               </div>
             </div>
@@ -538,14 +538,14 @@ export default function ExtendedScheduleManager() {
       <div className="flex h-screen bg-gray-50">
         {/* Sidebar */}
         <div className="w-64 bg-white shadow-lg border-r border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">E</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Extrafaro</h1>
-                <p className="text-sm text-gray-500">Gestão de Escalas</p>
+          <div className="p-8 border-b border-gray-200">
+            <div className="flex justify-center">
+              <div className="w-32 h-16 flex items-center justify-center">
+                <img 
+                  src="/multipark-logo.png" 
+                  alt="Multipark Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
           </div>
@@ -612,14 +612,14 @@ export default function ExtendedScheduleManager() {
       <div className="flex h-screen bg-gray-50">
         {/* Sidebar */}
         <div className="w-64 bg-white shadow-lg border-r border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">E</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Extrafaro</h1>
-                <p className="text-sm text-gray-500">Gestão de Escalas</p>
+          <div className="p-8 border-b border-gray-200">
+            <div className="flex justify-center">
+              <div className="w-32 h-16 flex items-center justify-center">
+                <img 
+                  src="/multipark-logo.png" 
+                  alt="Multipark Logo" 
+                  className="w-full h-full object-contain"
+                />
               </div>
             </div>
           </div>
@@ -691,14 +691,14 @@ export default function ExtendedScheduleManager() {
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-lg border-r border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">E</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Extrafaro</h1>
-              <p className="text-sm text-gray-500">Gestão de Escalas</p>
+        <div className="p-8 border-b border-gray-200">
+          <div className="flex justify-center">
+            <div className="w-32 h-16 flex items-center justify-center">
+              <img 
+                src="/multipark-logo.png" 
+                alt="Multipark Logo" 
+                className="w-full h-full object-contain"
+              />
             </div>
           </div>
         </div>
@@ -749,13 +749,12 @@ export default function ExtendedScheduleManager() {
       {/* Conteúdo principal */}
       <div className="flex-1 overflow-auto">
         <div className="p-6">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestão Avançada de Escalas de Turnos</h1>
-            <p className="text-gray-600">Sistema completo com intervalos de 30 minutos (24 horas - expansível)</p>
-          </div>
 
-          {/* Controles */}
-          <div className="flex flex-wrap gap-4 mb-6">
+
+
+
+          {/* Configurações e Data */}
+          <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-2">
               <Label>Configurações:</Label>
               <Select value={currentCity} onValueChange={(value: keyof typeof CITIES) => setCurrentCity(value)}>
@@ -771,7 +770,7 @@ export default function ExtendedScheduleManager() {
                 </SelectContent>
               </Select>
             </div>
-
+            
             <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <Calendar className="w-5 h-5 text-blue-600" />
               <Label className="font-medium text-blue-900">Data:</Label>
@@ -796,6 +795,12 @@ export default function ExtendedScheduleManager() {
             <p className="text-sm text-blue-700">
               {currentCity} - {selectedDate.toLocaleDateString("pt-PT")} - {employees.length} colaboradores
             </p>
+          </div>
+
+          {/* Título */}
+          <div className="mb-6 mt-4 text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Gestão Avançada de Escalas de Turnos</h1>
+            <p className="text-gray-600">Sistema completo com intervalos de 30 minutos (24 horas - expansível)</p>
           </div>
 
           {/* Botões de ação */}
@@ -910,12 +915,19 @@ export default function ExtendedScheduleManager() {
               <Users className="w-5 h-5" />
               Categorias de Colaboradores
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {Object.entries(EMPLOYEE_TYPES).map(([key, type]) => (
-                <div key={key} className="flex items-center gap-2 p-2 bg-white rounded border">
-                  <div className={`w-4 h-4 rounded ${type.color}`}></div>
-                  <span className="text-sm">{type.name}</span>
-                </div>
+                <button 
+                  key={key} 
+                  className="flex items-center gap-3 p-4 bg-white rounded-lg border-2 hover:border-blue-300 hover:shadow-md transition-all cursor-pointer"
+                  onClick={() => {
+                    // Filtro por tipo de colaborador (funcionalidade futura)
+                    console.log(`Filtrar por: ${type.name}`)
+                  }}
+                >
+                  <div className={`w-6 h-6 rounded ${type.color}`}></div>
+                  <span className="text-base font-medium">{type.name}</span>
+                </button>
               ))}
             </div>
           </div>
@@ -929,9 +941,9 @@ export default function ExtendedScheduleManager() {
           </div>
 
           {/* Tabela de horários */}
-          <div className="bg-white rounded-lg border shadow-sm overflow-hidden schedule-table">
+          <div className="mt-8 bg-white rounded-lg border shadow-sm overflow-hidden schedule-table">
             <div className="overflow-x-auto max-w-full">
-              <div className="grid grid-cols-[minmax(180px,200px)_repeat(48,minmax(24px,1fr))] min-w-max" style={{ minWidth: '1400px' }}>
+              <div className="grid grid-cols-[minmax(180px,200px)_repeat(48,minmax(32px,1fr))] min-w-max" style={{ minWidth: '1600px' }}>
                 {/* Cabeçalho */}
                 <div className="p-3 bg-gray-100 border-r border-gray-200 font-semibold">
                   Horário<br />
