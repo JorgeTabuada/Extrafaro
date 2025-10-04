@@ -555,9 +555,9 @@ export default function ExtendedScheduleManager() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.entries(CITIES).map(([key, name]) => (
+                  {Object.entries(CITIES).map(([key, city]) => (
                     <SelectItem key={key} value={key}>
-                      {name}
+                      {city.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
