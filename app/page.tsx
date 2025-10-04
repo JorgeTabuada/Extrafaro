@@ -532,7 +532,7 @@ export default function ExtendedScheduleManager() {
 
         <div className="absolute bottom-4 left-4 right-4">
           <div className="p-3 bg-gray-100 rounded-lg">
-            <div className="text-sm font-medium text-gray-700">{CITIES[currentCity]}</div>
+            <div className="text-sm font-medium text-gray-700">{CITIES[currentCity].name}</div>
             <div className="text-xs text-gray-500">Cidade atual</div>
           </div>
         </div>
