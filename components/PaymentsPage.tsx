@@ -481,3 +481,5 @@ export default function PaymentsPage({
     </div>
   )
 }
+
+export { PaymentsPage }
