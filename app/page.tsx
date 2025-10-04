@@ -30,6 +30,7 @@ import * as XLSX from "xlsx"
 import html2canvas from "html2canvas"
 import PaymentsPage from "@/components/PaymentsPage"
 import EmployeesPage from "@/components/EmployeesPage"
+import EnhancedEmployeesPage from "@/components/EnhancedEmployeesPage"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { format } from "date-fns"
@@ -1529,12 +1530,14 @@ export default function AdvancedShiftSchedule() {
 
         {currentTab === "employees" && (
           <div ref={employeesRef}>
-            <EmployeesPage
+            <EnhancedEmployeesPage
+              employees={employees}
+              setEmployees={setEmployees}
               EMPLOYEE_TYPES={EMPLOYEE_TYPES}
-              CITIES={CITIES}
+              EMPLOYEE_STATES={EMPLOYEE_STATES}
               currentCity={currentCity}
               selectedDate={selectedDate}
-              onDateChange={setSelectedDate}
+              CITIES={CITIES}
             />
           </div>
         )}
