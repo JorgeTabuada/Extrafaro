@@ -970,18 +970,6 @@ export default function AdvancedShiftSchedule() {
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <MapPin className="h-4 w-4" />
               <span>{CITIES[currentCity].name}</span>
-              <Select value={currentCity} onValueChange={(value: keyof typeof CITIES) => setCurrentCity(value)}>
-                <SelectTrigger className="w-auto h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(CITIES).map(([key, city]) => (
-                    <SelectItem key={key} value={key}>
-                      {city.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
             <div className="mt-2 text-xs text-gray-500">
               Cidade atual
@@ -992,51 +980,70 @@ export default function AdvancedShiftSchedule() {
         {/* Main Content */}
         <div className="flex-1 ml-64">
           <div className="p-6">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {currentTab === "schedule" && "Gestão de Escalas"}
-                  {currentTab === "employees" && "Colaboradores"}
-                  {currentTab === "payments" && "Pagamentos"}
-                </h1>
-                <p className="text-gray-600">
-                  {currentTab === "schedule" && "Planeamento de horários e turnos"}
-                  {currentTab === "employees" && "Gestão de recursos humanos"}
-                  {currentTab === "payments" && "Cálculos e relatórios financeiros"}
-                </p>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 px-3 py-2 bg-pink-100 text-pink-800 rounded-lg">
-                  <MapPin className="h-4 w-4" />
-                  <span className="font-medium">{CITIES[currentCity].name}</span>
-                </div>
-                {currentTab === "schedule" && (
-                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        {format(selectedDate, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: pt })}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="end">
-                      <CalendarComponent
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={(date) => {
-                          if (date) {
-                            setSelectedDate(date)
-                            setIsCalendarOpen(false)
-                          }
-                        }}
-                        locale={pt}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              </div>
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {currentTab === "schedule" && "Gestão Avançada de Escalas de Turnos"}
+                {currentTab === "employees" && "Gestão de Colaboradores"}
+                {currentTab === "payments" && "Cálculo de Pagamentos"}
+              </h1>
+              <p className="text-gray-600">
+                Sistema completo com intervalos de 30 minutos ({totalHalfHours / 2} horas - expansível)
+              </p>
             </div>
+
+        <div className="flex flex-wrap gap-4 mb-6 p-4 bg-white rounded-lg border">
+          <div className="flex items-center gap-2">
+            <Label className="text-sm font-medium">Configurações:</Label>
+            <Select value={currentCity} onValueChange={(value: keyof typeof CITIES) => setCurrentCity(value)}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(CITIES).map(([key, city]) => (
+                  <SelectItem key={key} value={key}>
+                    {city.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {currentTab === "schedule" && (
+            <>
+              <Separator orientation="vertical" className="h-8" />
+
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-gray-600" />
+                <Label className="text-sm font-medium">Data:</Label>
+                <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className="w-48 justify-start text-left font-normal bg-transparent">
+                      {format(selectedDate, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: pt })}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => {
+                        if (date) {
+                          setSelectedDate(date)
+                          setIsCalendarOpen(false)
+                        }
+                      }}
+                      locale={pt}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </>
+          )}
+
+          <div className="text-xs text-gray-500 ml-auto">
+            {currentCity} - {format(selectedDate, "dd/MM")} - {employees.length} colaboradores
+          </div>
+        </div>
 
         <div className="flex flex-wrap gap-4 mb-6">
           {currentTab === "schedule" && (
