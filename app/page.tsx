@@ -30,7 +30,7 @@ import * as XLSX from "xlsx"
 import html2canvas from "html2canvas"
 import PaymentsPage from "@/components/PaymentsPage"
 import EmployeesPage from "@/components/EmployeesPage"
-import EnhancedEmployeesPage from "@/components/EnhancedEmployeesPage"
+// import EnhancedEmployeesPage from "@/components/EnhancedEmployeesPage"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Calendar as CalendarComponent } from "@/components/ui/calendar"
 import { format } from "date-fns"
@@ -901,7 +901,12 @@ export default function AdvancedShiftSchedule() {
     }
   }
 
-  const sortedEmployees = [...employees].sort((a, b) => a.order - b.order)
+  // Filtrar colaboradores para a escala (apenas ativos e da cidade atual)
+  const availableEmployees = employees.filter(emp => 
+    emp.city === currentCity && 
+    (emp.state === 'active' || emp.state === 'if_needed')
+  )
+  const sortedEmployees = [...availableEmployees].sort((a, b) => a.order - b.order)
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -1530,14 +1535,12 @@ export default function AdvancedShiftSchedule() {
 
         {currentTab === "employees" && (
           <div ref={employeesRef}>
-            <EnhancedEmployeesPage
-              employees={employees}
-              setEmployees={setEmployees}
+            <EmployeesPage
               EMPLOYEE_TYPES={EMPLOYEE_TYPES}
-              EMPLOYEE_STATES={EMPLOYEE_STATES}
+              CITIES={CITIES}
               currentCity={currentCity}
               selectedDate={selectedDate}
-              CITIES={CITIES}
+              onDateChange={setSelectedDate}
             />
           </div>
         )}

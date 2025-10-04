@@ -64,6 +64,8 @@ interface ExtendedEmployee {
   phone?: string
   email?: string
   notes?: string
+  citizenCardNumber?: string
+  citizenCardFile?: string
   weekAvailability: {
     [key: string]: boolean
   }
@@ -126,6 +128,8 @@ export default function EmployeesPage({
     email: "",
     notes: "",
     customHourlyRate: undefined,
+    citizenCardNumber: "",
+    citizenCardFile: "",
     weekAvailability: {
       monday: true,
       tuesday: true,
@@ -428,6 +432,50 @@ export default function EmployeesPage({
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  Documentos de Identificação
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="citizenCardNumber">Número do Cartão de Cidadão</Label>
+                    <Input
+                      id="citizenCardNumber"
+                      value={formData.citizenCardNumber || ""}
+                      onChange={(e) => setFormData({ ...formData, citizenCardNumber: e.target.value })}
+                      placeholder="00000000 0 ZZ0"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="citizenCardFile">Upload do Cartão de Cidadão</Label>
+                    <Input
+                      id="citizenCardFile"
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = (event) => {
+                            setFormData({ 
+                              ...formData, 
+                              citizenCardFile: event.target?.result as string 
+                            })
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                    />
+                    {formData.citizenCardFile && (
+                      <p className="text-sm text-green-600 mt-1">✓ Documento carregado</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -953,6 +1001,50 @@ export default function EmployeesPage({
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <User className="w-5 h-5" />
+                  Documentos de Identificação
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="citizenCardNumber">Número do Cartão de Cidadão</Label>
+                    <Input
+                      id="citizenCardNumber"
+                      value={formData.citizenCardNumber || ""}
+                      onChange={(e) => setFormData({ ...formData, citizenCardNumber: e.target.value })}
+                      placeholder="00000000 0 ZZ0"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="citizenCardFile">Upload do Cartão de Cidadão</Label>
+                    <Input
+                      id="citizenCardFile"
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = (event) => {
+                            setFormData({ 
+                              ...formData, 
+                              citizenCardFile: event.target?.result as string 
+                            })
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                    />
+                    {formData.citizenCardFile && (
+                      <p className="text-sm text-green-600 mt-1">✓ Documento carregado</p>
+                    )}
                   </div>
                 </div>
               </div>
