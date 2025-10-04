@@ -64,8 +64,13 @@ interface ExtendedEmployee {
   phone?: string
   email?: string
   notes?: string
+  photo?: string
   citizenCardNumber?: string
   citizenCardFile?: string
+  drivingLicenseNumber?: string
+  drivingLicenseExpiry?: string
+  drivingLicenseFile?: string
+  contractFile?: string
   weekAvailability: {
     [key: string]: boolean
   }
@@ -128,8 +133,13 @@ export default function EmployeesPage({
     email: "",
     notes: "",
     customHourlyRate: undefined,
+    photo: "",
     citizenCardNumber: "",
     citizenCardFile: "",
+    drivingLicenseNumber: "",
+    drivingLicenseExpiry: "",
+    drivingLicenseFile: "",
+    contractFile: "",
     weekAvailability: {
       monday: true,
       tuesday: true,
@@ -441,9 +451,33 @@ export default function EmployeesPage({
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <User className="w-5 h-5" />
-                  Documentos de Identificação
+                  Documentos e Fotografia
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="photo">Fotografia do Colaborador</Label>
+                    <Input
+                      id="photo"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = (event) => {
+                            setFormData({ 
+                              ...formData, 
+                              photo: event.target?.result as string 
+                            })
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                    />
+                    {formData.photo && (
+                      <p className="text-sm text-green-600 mt-1">✓ Fotografia carregada</p>
+                    )}
+                  </div>
                   <div>
                     <Label htmlFor="citizenCardNumber">Número do Cartão de Cidadão</Label>
                     <Input
@@ -475,6 +509,72 @@ export default function EmployeesPage({
                     />
                     {formData.citizenCardFile && (
                       <p className="text-sm text-green-600 mt-1">✓ Documento carregado</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="drivingLicenseNumber">Número da Carta de Condução</Label>
+                    <Input
+                      id="drivingLicenseNumber"
+                      value={formData.drivingLicenseNumber || ""}
+                      onChange={(e) => setFormData({ ...formData, drivingLicenseNumber: e.target.value })}
+                      placeholder="Número da carta de condução"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="drivingLicenseExpiry">Validade da Carta de Condução</Label>
+                    <Input
+                      id="drivingLicenseExpiry"
+                      type="date"
+                      value={formData.drivingLicenseExpiry || ""}
+                      onChange={(e) => setFormData({ ...formData, drivingLicenseExpiry: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="drivingLicenseFile">Upload da Carta de Condução</Label>
+                    <Input
+                      id="drivingLicenseFile"
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = (event) => {
+                            setFormData({ 
+                              ...formData, 
+                              drivingLicenseFile: event.target?.result as string 
+                            })
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                    />
+                    {formData.drivingLicenseFile && (
+                      <p className="text-sm text-green-600 mt-1">✓ Documento carregado</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="contractFile">Upload do Contrato de Trabalho</Label>
+                    <Input
+                      id="contractFile"
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = (event) => {
+                            setFormData({ 
+                              ...formData, 
+                              contractFile: event.target?.result as string 
+                            })
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                    />
+                    {formData.contractFile && (
+                      <p className="text-sm text-green-600 mt-1">✓ Contrato carregado</p>
                     )}
                   </div>
                 </div>
@@ -1010,9 +1110,33 @@ export default function EmployeesPage({
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
                   <User className="w-5 h-5" />
-                  Documentos de Identificação
+                  Documentos e Fotografia
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="photo">Fotografia do Colaborador</Label>
+                    <Input
+                      id="photo"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = (event) => {
+                            setFormData({ 
+                              ...formData, 
+                              photo: event.target?.result as string 
+                            })
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                    />
+                    {formData.photo && (
+                      <p className="text-sm text-green-600 mt-1">✓ Fotografia carregada</p>
+                    )}
+                  </div>
                   <div>
                     <Label htmlFor="citizenCardNumber">Número do Cartão de Cidadão</Label>
                     <Input
@@ -1044,6 +1168,72 @@ export default function EmployeesPage({
                     />
                     {formData.citizenCardFile && (
                       <p className="text-sm text-green-600 mt-1">✓ Documento carregado</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="drivingLicenseNumber">Número da Carta de Condução</Label>
+                    <Input
+                      id="drivingLicenseNumber"
+                      value={formData.drivingLicenseNumber || ""}
+                      onChange={(e) => setFormData({ ...formData, drivingLicenseNumber: e.target.value })}
+                      placeholder="Número da carta de condução"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="drivingLicenseExpiry">Validade da Carta de Condução</Label>
+                    <Input
+                      id="drivingLicenseExpiry"
+                      type="date"
+                      value={formData.drivingLicenseExpiry || ""}
+                      onChange={(e) => setFormData({ ...formData, drivingLicenseExpiry: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="drivingLicenseFile">Upload da Carta de Condução</Label>
+                    <Input
+                      id="drivingLicenseFile"
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = (event) => {
+                            setFormData({ 
+                              ...formData, 
+                              drivingLicenseFile: event.target?.result as string 
+                            })
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                    />
+                    {formData.drivingLicenseFile && (
+                      <p className="text-sm text-green-600 mt-1">✓ Documento carregado</p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="contractFile">Upload do Contrato de Trabalho</Label>
+                    <Input
+                      id="contractFile"
+                      type="file"
+                      accept="image/*,.pdf"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = (event) => {
+                            setFormData({ 
+                              ...formData, 
+                              contractFile: event.target?.result as string 
+                            })
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                    />
+                    {formData.contractFile && (
+                      <p className="text-sm text-green-600 mt-1">✓ Contrato carregado</p>
                     )}
                   </div>
                 </div>
