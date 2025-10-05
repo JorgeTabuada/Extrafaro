@@ -262,3 +262,79 @@ export const testSupabaseConnection = async (): Promise<{ success: boolean; mess
     return { success: false, message: 'Erro interno de conexão' }
   }
 }
+
+// Função para carregar dados históricos de uma cidade e data específica
+export const loadHistoricalDataFromSupabase = async (
+  city: string,
+  dateStr: string
+): Promise<{ success: boolean; data?: any; message: string }> => {
+  if (!isSupabaseConfigured() || !supabase) {
+    return { success: false, message: 'Supabase não configurado' }
+  }
+
+  try {
+    // Carregar escalas para a data específica
+    const { data: schedules, error: schedulesError } = await supabase
+      .from('schedules')
+      .select('*')
+      .eq('city', city)
+      .eq('schedule_date', dateStr)
+
+    if (schedulesError) {
+      console.error('Erro ao carregar escalas:', schedulesError)
+      return { success: false, message: `Erro: ${schedulesError.message}` }
+    }
+
+    // Carregar colaboradores da cidade
+    const { data: employees, error: employeesError } = await supabase
+      .from('employees')
+      .select('*')
+      .eq('city', city)
+
+    if (employeesError) {
+      console.error('Erro ao carregar colaboradores:', employeesError)
+      return { success: false, message: `Erro: ${employeesError.message}` }
+    }
+
+    // Converter para formato do localStorage
+    const employeesForApp = (employees || []).map((emp: any) => ({
+      id: emp.id,
+      name: emp.name,
+      type: emp.type,
+      state: emp.state,
+      city: emp.city,
+      phone: emp.phone,
+      email: emp.email,
+      notes: emp.notes,
+      weekAvailability: emp.week_availability || {},
+      hourAvailability: emp.hour_availability || {},
+      customHourlyRate: emp.custom_hourly_rate,
+      photo: emp.photo_url,
+      citizenCardNumber: emp.citizen_card_number,
+      citizenCardFile: emp.citizen_card_file_url,
+      drivingLicenseNumber: emp.driving_license_number,
+      drivingLicenseExpiry: emp.driving_license_expiry,
+      drivingLicenseFile: emp.driving_license_file_url,
+      contractFile: emp.contract_file_url,
+    }))
+
+    const schedule: Record<string, boolean[]> = {}
+    schedules?.forEach((record: any) => {
+      schedule[record.employee_id] = record.time_slots || []
+    })
+
+    const historicalData = {
+      employees: employeesForApp,
+      schedule: schedule
+    }
+
+    return {
+      success: true,
+      data: historicalData,
+      message: `Dados carregados: ${employeesForApp.length} colaboradores, ${schedules?.length || 0} escalas`
+    }
+  } catch (error) {
+    console.error('Erro ao carregar dados históricos:', error)
+    return { success: false, message: 'Erro interno ao carregar dados' }
+  }
+}

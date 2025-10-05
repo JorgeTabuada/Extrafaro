@@ -16,7 +16,10 @@
       "Bash(dir scripts)",
       "Bash(timeout:*)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Read(//c/Users/jorge/OneDrive/Imagens/Screenshots/**)"
     ],
     "deny": [],
     "ask": []

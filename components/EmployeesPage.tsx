@@ -167,6 +167,7 @@ export default function EmployeesPage({
 
   useEffect(() => {
     loadEmployeesFromLocalStorage()
+    loadEmployeesFromSupabaseOnMount()
   }, [currentCity])
 
   const loadEmployeesFromLocalStorage = () => {
@@ -179,6 +180,27 @@ export default function EmployeesPage({
       }
     } else {
       setEmployees([])
+    }
+  }
+
+  const loadEmployeesFromSupabaseOnMount = async () => {
+    try {
+      console.log('🔄 Carregando colaboradores do Supabase...')
+      const result = await loadEmployeesFromSupabase(currentCity)
+
+      if (result.success && result.data && result.data.length > 0) {
+        console.log(`✅ ${result.data.length} colaboradores carregados do Supabase`)
+        setEmployees(result.data)
+        // Salvar no localStorage também
+        localStorage.setItem(`city-employees-${currentCity}`, JSON.stringify(result.data))
+        setIsSupabaseConnected(true)
+      } else {
+        console.log('ℹ️ Nenhum colaborador no Supabase, usando localStorage')
+        setIsSupabaseConnected(false)
+      }
+    } catch (error) {
+      console.error('❌ Erro ao carregar do Supabase:', error)
+      setIsSupabaseConnected(false)
     }
   }
 
@@ -886,7 +908,7 @@ export default function EmployeesPage({
           <Label className="text-sm font-medium">Data:</Label>
           <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="w-64 justify-start text-left font-normal bg-transparent">
+              <Button variant="outline" className="w-96 justify-start text-left font-normal bg-transparent text-base px-6 py-6">
                 {format(selectedDate, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: pt })}
               </Button>
             </PopoverTrigger>

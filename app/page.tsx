@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Calendar, CalendarDays, Users, DollarSign, Clock, Settings, Home, FileText, BarChart3, Cloud, CloudOff, RefreshCw, Download, Loader2 } from "lucide-react"
 import EmployeesPage from "@/components/EmployeesPage"
 import PaymentsPage from "@/components/PaymentsPage"
+import ReportsPage from "@/components/ReportsPage"
 import { syncScheduleToSupabase, loadScheduleFromSupabase, testSupabaseConnection } from "@/lib/supabase-sync"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -102,7 +103,7 @@ const MAX_EMPLOYEES = 25
 
 export default function ExtendedScheduleManager() {
   // Estados principais
-  const [currentTab, setCurrentTab] = useState<"schedule" | "employees" | "payments">("schedule")
+  const [currentTab, setCurrentTab] = useState<"schedule" | "employees" | "payments" | "reports">("schedule")
   const [currentCity, setCurrentCity] = useState<keyof typeof CITIES>("lisboa")
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [employees, setEmployees] = useState<Employee[]>([])
@@ -632,204 +633,221 @@ export default function ExtendedScheduleManager() {
 
   if (currentTab === "employees") {
     return (
-      <div className="flex h-screen bg-gray-50">
-        {/* Sidebar */}
-        <div className="w-64 bg-white shadow-lg border-r border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex flex-col items-center gap-2">
-              <h1 className="text-xl font-bold text-gray-900">Multipark</h1>
-              <p className="text-xs text-gray-500 text-center">Gestão de Escalas</p>
+      <div className="h-screen bg-gray-50 overflow-auto">
+        {/* Barra de navegação */}
+        <div className="bg-white border-b border-gray-200 px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex gap-2">
+              <Button
+                variant={currentTab === "schedule" ? "default" : "outline"}
+                onClick={() => setCurrentTab("schedule")}
+                className="flex items-center gap-2"
+              >
+                <Calendar className="w-4 h-4" />
+                Gestão de Escalas
+              </Button>
+              <Button
+                variant={currentTab === "employees" ? "default" : "outline"}
+                onClick={() => setCurrentTab("employees")}
+                className="flex items-center gap-2"
+              >
+                <Users className="w-4 h-4" />
+                Colaboradores
+              </Button>
+              <Button
+                variant={currentTab === "payments" ? "default" : "outline"}
+                onClick={() => setCurrentTab("payments")}
+                className="flex items-center gap-2"
+              >
+                <DollarSign className="w-4 h-4" />
+                Pagamentos
+              </Button>
+              <Button
+                variant={currentTab === "reports" ? "default" : "outline"}
+                onClick={() => setCurrentTab("reports")}
+                className="flex items-center gap-2"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Relatórios
+              </Button>
             </div>
-          </div>
-
-          <nav className="p-4 space-y-2">
-            <button
-              onClick={() => setCurrentTab("schedule")}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <Calendar className="w-5 h-5 text-blue-600" />
-              <div>
-                <div className="font-medium text-gray-900">Gestão de Escalas</div>
-                <div className="text-sm text-gray-500">Planeamento de horários</div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setCurrentTab("employees")}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg bg-blue-50 border-l-4 border-blue-600"
-            >
-              <Users className="w-5 h-5 text-blue-600" />
-              <div>
-                <div className="font-medium text-blue-900">Colaboradores</div>
-                <div className="text-sm text-blue-600">Gestão de recursos humanos</div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setCurrentTab("payments")}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <DollarSign className="w-5 h-5 text-green-600" />
-              <div>
-                <div className="font-medium text-gray-900">Pagamentos</div>
-                <div className="text-sm text-gray-500">Cálculos e relatórios</div>
-              </div>
-            </button>
-          </nav>
-
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="p-3 bg-gray-100 rounded-lg">
-              <div className="text-sm font-medium text-gray-700">{CITIES[currentCity].name}</div>
-              <div className="text-xs text-gray-500">Cidade atual</div>
+            <div className="text-sm text-gray-600">
+              <strong>{CITIES[currentCity].name}</strong>
             </div>
           </div>
         </div>
 
-        {/* Conteúdo principal */}
-        <div className="flex-1 overflow-auto">
-          <EmployeesPage
-            EMPLOYEE_TYPES={EMPLOYEE_TYPES}
-            CITIES={CITIES}
-            currentCity={currentCity}
-            selectedDate={selectedDate}
-            onDateChange={setSelectedDate}
-          />
-        </div>
+        <EmployeesPage
+          EMPLOYEE_TYPES={EMPLOYEE_TYPES}
+          CITIES={CITIES}
+          currentCity={currentCity}
+          selectedDate={selectedDate}
+          onDateChange={setSelectedDate}
+        />
       </div>
     )
   }
 
   if (currentTab === "payments") {
     return (
-      <div className="flex h-screen bg-gray-50">
-        {/* Sidebar */}
-        <div className="w-64 bg-white shadow-lg border-r border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex flex-col items-center gap-2">
-              <h1 className="text-xl font-bold text-gray-900">Multipark</h1>
-              <p className="text-xs text-gray-500 text-center">Gestão de Escalas</p>
+      <div className="h-screen bg-gray-50 overflow-auto">
+        {/* Barra de navegação */}
+        <div className="bg-white border-b border-gray-200 px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex gap-2">
+              <Button
+                variant={currentTab === "schedule" ? "default" : "outline"}
+                onClick={() => setCurrentTab("schedule")}
+                className="flex items-center gap-2"
+              >
+                <Calendar className="w-4 h-4" />
+                Gestão de Escalas
+              </Button>
+              <Button
+                variant={currentTab === "employees" ? "default" : "outline"}
+                onClick={() => setCurrentTab("employees")}
+                className="flex items-center gap-2"
+              >
+                <Users className="w-4 h-4" />
+                Colaboradores
+              </Button>
+              <Button
+                variant={currentTab === "payments" ? "default" : "outline"}
+                onClick={() => setCurrentTab("payments")}
+                className="flex items-center gap-2"
+              >
+                <DollarSign className="w-4 h-4" />
+                Pagamentos
+              </Button>
+              <Button
+                variant={currentTab === "reports" ? "default" : "outline"}
+                onClick={() => setCurrentTab("reports")}
+                className="flex items-center gap-2"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Relatórios
+              </Button>
             </div>
-          </div>
-
-          <nav className="p-4 space-y-2">
-            <button
-              onClick={() => setCurrentTab("schedule")}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <Calendar className="w-5 h-5 text-blue-600" />
-              <div>
-                <div className="font-medium text-gray-900">Gestão de Escalas</div>
-                <div className="text-sm text-gray-500">Planeamento de horários</div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setCurrentTab("employees")}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <Users className="w-5 h-5 text-blue-600" />
-              <div>
-                <div className="font-medium text-gray-900">Colaboradores</div>
-                <div className="text-sm text-gray-500">Gestão de recursos humanos</div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setCurrentTab("payments")}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg bg-green-50 border-l-4 border-green-600"
-            >
-              <DollarSign className="w-5 h-5 text-green-600" />
-              <div>
-                <div className="font-medium text-green-900">Pagamentos</div>
-                <div className="text-sm text-green-600">Cálculos e relatórios</div>
-              </div>
-            </button>
-          </nav>
-
-          <div className="absolute bottom-4 left-4 right-4">
-            <div className="p-3 bg-gray-100 rounded-lg">
-              <div className="text-sm font-medium text-gray-700">{CITIES[currentCity].name}</div>
-              <div className="text-xs text-gray-500">Cidade atual</div>
+            <div className="text-sm text-gray-600">
+              <strong>{CITIES[currentCity].name}</strong>
             </div>
           </div>
         </div>
 
-        {/* Conteúdo principal */}
-        <div className="flex-1 overflow-auto">
-          <PaymentsPage
-            employees={employees}
-            schedule={schedule}
-            totalHours={totalHours}
-            EMPLOYEE_TYPES={EMPLOYEE_TYPES}
-            getTotalHours={(employeeId: string) => {
-              const empSchedule = schedule[employeeId] || []
-              return empSchedule.filter(Boolean).length * 0.5
-            }}
-            currentCity={currentCity}
-            selectedDate={selectedDate}
-            CITIES={CITIES}
-          />
+        <PaymentsPage
+          employees={employees}
+          schedule={schedule}
+          totalHours={totalHours}
+          EMPLOYEE_TYPES={EMPLOYEE_TYPES}
+          getTotalHours={(employeeId: string) => {
+            const empSchedule = schedule[employeeId] || []
+            return empSchedule.filter(Boolean).length * 0.5
+          }}
+          currentCity={currentCity}
+          selectedDate={selectedDate}
+          CITIES={CITIES}
+        />
+      </div>
+    )
+  }
+
+  if (currentTab === "reports") {
+    return (
+      <div className="h-screen bg-gray-50 overflow-auto">
+        {/* Barra de navegação */}
+        <div className="bg-white border-b border-gray-200 px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex gap-2">
+              <Button
+                variant={currentTab === "schedule" ? "default" : "outline"}
+                onClick={() => setCurrentTab("schedule")}
+                className="flex items-center gap-2"
+              >
+                <Calendar className="w-4 h-4" />
+                Gestão de Escalas
+              </Button>
+              <Button
+                variant={currentTab === "employees" ? "default" : "outline"}
+                onClick={() => setCurrentTab("employees")}
+                className="flex items-center gap-2"
+              >
+                <Users className="w-4 h-4" />
+                Colaboradores
+              </Button>
+              <Button
+                variant={currentTab === "payments" ? "default" : "outline"}
+                onClick={() => setCurrentTab("payments")}
+                className="flex items-center gap-2"
+              >
+                <DollarSign className="w-4 h-4" />
+                Pagamentos
+              </Button>
+              <Button
+                variant={currentTab === "reports" ? "default" : "outline"}
+                onClick={() => setCurrentTab("reports")}
+                className="flex items-center gap-2"
+              >
+                <BarChart3 className="w-4 h-4" />
+                Relatórios
+              </Button>
+            </div>
+            <div className="text-sm text-gray-600">
+              <strong>{CITIES[currentCity].name}</strong>
+            </div>
+          </div>
         </div>
+
+        <ReportsPage CITIES={CITIES} EMPLOYEE_TYPES={EMPLOYEE_TYPES} />
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-lg border-r border-gray-200">
-        <div className="p-6 border-b border-gray-200">
-          <div className="flex flex-col items-center gap-2">
-            <h1 className="text-xl font-bold text-gray-900">Multipark</h1>
-            <p className="text-xs text-gray-500 text-center">Gestão de Escalas</p>
+    <div className="h-screen bg-gray-50">
+      {/* Barra de navegação */}
+      <div className="bg-white border-b border-gray-200 px-6 py-3">
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2">
+            <Button
+              variant={currentTab === "schedule" ? "default" : "outline"}
+              onClick={() => setCurrentTab("schedule")}
+              className="flex items-center gap-2"
+            >
+              <Calendar className="w-4 h-4" />
+              Gestão de Escalas
+            </Button>
+            <Button
+              variant={currentTab === "employees" ? "default" : "outline"}
+              onClick={() => setCurrentTab("employees")}
+              className="flex items-center gap-2"
+            >
+              <Users className="w-4 h-4" />
+              Colaboradores
+            </Button>
+            <Button
+              variant={currentTab === "payments" ? "default" : "outline"}
+              onClick={() => setCurrentTab("payments")}
+              className="flex items-center gap-2"
+            >
+              <DollarSign className="w-4 h-4" />
+              Pagamentos
+            </Button>
+            <Button
+              variant={currentTab === "reports" ? "default" : "outline"}
+              onClick={() => setCurrentTab("reports")}
+              className="flex items-center gap-2"
+            >
+              <BarChart3 className="w-4 h-4" />
+              Relatórios
+            </Button>
           </div>
-        </div>
-
-        <nav className="p-4 space-y-2">
-          <button
-            onClick={() => setCurrentTab("schedule")}
-            className="w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg bg-blue-50 border-l-4 border-blue-600"
-          >
-            <Calendar className="w-5 h-5 text-blue-600" />
-            <div>
-              <div className="font-medium text-blue-900">Gestão de Escalas</div>
-              <div className="text-sm text-blue-600">Planeamento de horários</div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setCurrentTab("employees")}
-            className="w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <Users className="w-5 h-5 text-blue-600" />
-            <div>
-              <div className="font-medium text-gray-900">Colaboradores</div>
-              <div className="text-sm text-gray-500">Gestão de recursos humanos</div>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setCurrentTab("payments")}
-            className="w-full flex items-center gap-3 px-4 py-3 text-left rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            <DollarSign className="w-5 h-5 text-green-600" />
-            <div>
-              <div className="font-medium text-gray-900">Pagamentos</div>
-              <div className="text-sm text-gray-500">Cálculos e relatórios</div>
-            </div>
-          </button>
-        </nav>
-
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="p-3 bg-gray-100 rounded-lg">
-            <div className="text-sm font-medium text-gray-700">{CITIES[currentCity].name}</div>
-            <div className="text-xs text-gray-500">Cidade atual</div>
+          <div className="text-sm text-gray-600">
+            <strong>{CITIES[currentCity].name}</strong>
           </div>
         </div>
       </div>
 
-      {/* Conteúdo principal */}
-      <div className="flex-1 overflow-auto">
+      <div className="h-full overflow-auto">
         <div className="p-6">
           {/* Logo centralizado */}
           <div className="flex justify-center mb-6">
