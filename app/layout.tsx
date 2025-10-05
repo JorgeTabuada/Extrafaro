@@ -1,0 +1,33 @@
+import type { Metadata } from 'next'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
+import { Analytics } from '@vercel/analytics/next'
+import { Toaster } from 'sonner'
+import './globals.css'
+
+export const metadata: Metadata = {
+  title: 'Extra Faro - Gestão de Escalas',
+  description: 'Sistema de gestão de colaboradores e escalas de turnos',
+  generator: 'Next.js',
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="pt">
+      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+        {children}
+        <Toaster
+          position="top-right"
+          expand={true}
+          richColors
+          closeButton
+        />
+        <Analytics />
+      </body>
+    </html>
+  )
+}

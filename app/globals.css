@@ -1,0 +1,484 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================
+   RESET E BASE
+   ============================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: #f3f4f6;
+  color: #111827;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================
+   LAYOUT PRINCIPAL
+   ============================ */
+.min-h-screen {
+  min-height: 100vh;
+  background: #f3f4f6;
+  padding: 1rem;
+}
+
+.max-w-full {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* ============================
+   CARDS
+   ============================ */
+.card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.card-header {
+  background: white;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.card-content {
+  background: white;
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* ============================
+   BOTÕES
+   ============================ */
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  gap: 0.5rem;
+  white-space: nowrap;
+  text-decoration: none;
+  outline: none;
+}
+
+button:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.btn-primary,
+button[variant="default"] {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+button.btn-primary:hover:not(:disabled),
+button[variant="default"]:hover:not(:disabled) {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+/* ============================
+   FORMULÁRIOS
+   ============================ */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: #111827;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* ============================
+   BADGES
+   ============================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+/* ============================
+   ALERTAS
+   ============================ */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.alert-description {
+  flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* ============================
+   TABELA/GRADE DE HORÁRIOS
+   ============================ */
+.schedule-grid {
+  display: grid;
+  width: 100%;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.schedule-grid > div {
+  padding: 0.75rem;
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  position: relative;
+}
+
+/* Cabeçalho da grade */
+.schedule-grid > div:first-child {
+  background: #f9fafb;
+  font-weight: 600;
+}
+
+/* Headers dos colaboradores */
+div[data-employee-header="true"] {
+  background: #f9fafb !important;
+  min-height: 140px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.25rem;
+  text-align: left;
+}
+
+/* Células de tempo */
+div[data-time-cell="true"] {
+  background: #f9fafb !important;
+  font-family: monospace;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* Nome do colaborador */
+div[data-employee-name="true"] {
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: #111827;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+}
+
+/* Badge do tipo */
+span[data-employee-badge="true"] {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  border-radius: 4px;
+  margin-bottom: 0.25rem;
+}
+
+/* Total de horas */
+div[data-employee-total="true"] {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* ============================
+   CORES DOS TIPOS DE COLABORADOR
+   ============================ */
+.bg-yellow-100 { background: #fef3c7; }
+.bg-orange-100 { background: #fed7aa; }
+.bg-green-100 { background: #d1fae5; }
+.bg-blue-100 { background: #dbeafe; }
+.bg-purple-100 { background: #e9d5ff; }
+.bg-gray-150 { background: #f7f8f9; }
+.bg-gray-200 { background: #e5e7eb; }
+
+.bg-yellow-400 { background: #fbbf24; color: #78350f; }
+.bg-orange-400 { background: #fb923c; color: #7c2d12; }
+.bg-green-400 { background: #4ade80; color: #14532d; }
+.bg-blue-400 { background: #60a5fa; color: #1e3a8a; }
+.bg-purple-400 { background: #c084fc; color: #3b0764; }
+.bg-black { background: #000000; color: #ffffff; }
+.bg-gray-700 { background: #374151; color: #ffffff; }
+
+/* Células marcadas na grade */
+.schedule-grid > div.bg-yellow-400,
+.schedule-grid > div.bg-orange-400,
+.schedule-grid > div.bg-green-400,
+.schedule-grid > div.bg-blue-400,
+.schedule-grid > div.bg-purple-400,
+.schedule-grid > div.bg-black,
+.schedule-grid > div.bg-gray-700 {
+  font-weight: 600;
+  border-left-width: 4px;
+}
+
+/* ============================
+   MODAL/DIALOG
+   ============================ */
+[role="dialog"] {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+  z-index: 50;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Overlay do modal */
+[data-radix-dialog-overlay],
+[data-slot="dialog-overlay"] {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 40;
+}
+
+/* ============================
+   POPOVER/DROPDOWN
+   ============================ */
+[data-radix-popper-content-wrapper],
+[role="listbox"],
+[role="combobox"] {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+  padding: 0.5rem;
+  z-index: 50;
+}
+
+/* ============================
+   UTILITÁRIOS
+   ============================ */
+.hidden { display: none !important; }
+.block { display: block !important; }
+.flex { display: flex !important; }
+.inline-flex { display: inline-flex !important; }
+.grid { display: grid !important; }
+
+.items-center { align-items: center !important; }
+.justify-center { justify-content: center !important; }
+.justify-between { justify-content: space-between !important; }
+.gap-2 { gap: 0.5rem !important; }
+.gap-4 { gap: 1rem !important; }
+
+.text-sm { font-size: 0.875rem !important; }
+.text-xs { font-size: 0.75rem !important; }
+.font-medium { font-weight: 500 !important; }
+.font-semibold { font-weight: 600 !important; }
+.font-bold { font-weight: 700 !important; }
+
+.text-gray-600 { color: #4b5563 !important; }
+.text-gray-900 { color: #111827 !important; }
+
+.bg-white { background: white !important; }
+.bg-gray-50 { background: #f9fafb !important; }
+.bg-gray-100 { background: #f3f4f6 !important; }
+
+.border { border: 1px solid #e5e7eb !important; }
+.border-b { border-bottom: 1px solid #e5e7eb !important; }
+.border-r { border-right: 1px solid #e5e7eb !important; }
+
+.rounded { border-radius: 0.25rem !important; }
+.rounded-lg { border-radius: 0.5rem !important; }
+
+.p-2 { padding: 0.5rem !important; }
+.p-4 { padding: 1rem !important; }
+.px-4 { padding-left: 1rem !important; padding-right: 1rem !important; }
+.py-2 { padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+
+.mb-2 { margin-bottom: 0.5rem !important; }
+.mb-4 { margin-bottom: 1rem !important; }
+.mb-6 { margin-bottom: 1.5rem !important; }
+
+.w-full { width: 100% !important; }
+.max-w-lg { max-width: 32rem !important; }
+
+.overflow-x-auto { overflow-x: auto !important; }
+.overflow-hidden { overflow: hidden !important; }
+
+/* Hover effects */
+.hover\:bg-gray-50:hover { background: #f9fafb !important; }
+.hover\:bg-gray-100:hover { background: #f3f4f6 !important; }
+
+/* Group hover */
+.group:hover .group-hover\:opacity-100 {
+  opacity: 1 !important;
+}
+
+.opacity-0 { opacity: 0 !important; }
+.transition-opacity { transition: opacity 0.2s !important; }
+
+/* ============================
+   RESPONSIVIDADE
+   ============================ */
+@media (max-width: 768px) {
+  .schedule-grid {
+    font-size: 0.75rem;
+  }
+
+  div[data-employee-header="true"] {
+    min-height: 100px;
+    padding: 0.75rem;
+  }
+
+  .schedule-grid > div {
+    padding: 0.5rem;
+    min-height: 48px;
+  }
+}
+
+/* ============================
+   SCROLLBAR
+   ============================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ============================
+   ANIMAÇÕES
+   ============================ */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+/* ============================
+   PRINT
+   ============================ */
+@media print {
+  body {
+    background: white;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .schedule-grid {
+    break-inside: avoid;
+  }
+}
